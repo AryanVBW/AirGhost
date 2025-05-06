@@ -215,12 +215,11 @@ cat > dev_start.sh << EOF
 source venv/bin/activate
 
 # Export environment variables
-export FLASK_APP=app.py
 export FLASK_ENV=development
 export FLASK_DEBUG=1
 
 # Start the development server
-python app.py
+python scripts/server.py
 EOF
 chmod +x dev_start.sh
 print_good "Created development startup script (dev_start.sh)"
