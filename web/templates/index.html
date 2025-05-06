@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirGhost - WiFi Penetration Testing Platform</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>AirGhost</h2>
+            <p>WiFi Penetration Testing</p>
+        </div>
+        <ul class="nav-links">
+            <li class="active" data-page="dashboard">
+                <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            </li>
+            <li data-page="networks">
+                <a href="#"><i class="fas fa-wifi"></i> Networks</a>
+            </li>
+            <li data-page="evil-twin">
+                <a href="#"><i class="fas fa-copy"></i> Evil Twin</a>
+            </li>
+            <li data-page="captive-portal">
+                <a href="#"><i class="fas fa-sign-in-alt"></i> Captive Portal</a>
+            </li>
+            <li data-page="deauth">
+                <a href="#"><i class="fas fa-ban"></i> Deauthentication</a>
+            </li>
+            <li data-page="logs">
+                <a href="#"><i class="fas fa-list"></i> Logs</a>
+            </li>
+            <li data-page="settings">
+                <a href="#"><i class="fas fa-cog"></i> Settings</a>
+            </li>
+        </ul>
+        <div class="system-status">
+            <div class="status-item">
+                <span class="label">AP:</span> 
+                <span class="status" id="ap-status"><i class="fas fa-circle status-indicator offline"></i> Offline</span>
+            </div>
+            <div class="status-item">
+                <span class="label">DHCP:</span> 
+                <span class="status" id="dhcp-status"><i class="fas fa-circle status-indicator offline"></i> Offline</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="left">
+                <h1 id="page-title">Dashboard</h1>
+            </div>
+            <div class="right">
+                <div class="interface-selector">
+                    <label for="interface-select">Interface:</label>
+                    <select id="interface-select"></select>
+                </div>
+                <button id="refresh-btn" class="btn btn-sm btn-refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div class="page-content" id="dashboard-page">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>System Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="system-info">
+                                <div class="info-item">
+                                    <span class="label">Hostname:</span>
+                                    <span class="value" id="hostname"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">IP Address:</span>
+                                    <span class="value" id="ip-address"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Uptime:</span>
+                                    <span class="value" id="uptime"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">CPU Usage:</span>
+                                    <span class="value" id="cpu-usage"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Memory Usage:</span>
+                                    <span class="value" id="memory-usage"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Interface Status</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="interface-status">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Interface</th>
+                                            <th>MAC Address</th>
+                                            <th>Mode</th>
+                                            <th>Channel</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="interface-table">
+                                        <!-- Interface data will be dynamically inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Active Attacks</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="active-attacks">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Attack Type</th>
+                                            <th>Target</th>
+                                            <th>Duration</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attacks-table">
+                                        <!-- No active attacks -->
+                                        <tr id="no-attacks-row">
+                                            <td colspan="5" class="text-center">No active attacks</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Networks Page -->
+        <div class="page-content hidden" id="networks-page">
+            <div class="card">
+                <div class="card-header">
+                    <h3>WiFi Networks</h3>
+                    <button id="scan-btn" class="btn btn-primary">Scan Networks</button>
+                </div>
+                <div class="card-body">
+                    <div id="scanning-indicator" class="hidden">
+                        <div class="spinner"></div>
+                        <p>Scanning for networks...</p>
+                    </div>
+                    <div id="networks-list">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>SSID</th>
+                                    <th>BSSID</th>
+                                    <th>Channel</th>
+                                    <th>Security</th>
+                                    <th>Signal</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="networks-table">
+                                <!-- Networks will be dynamically inserted here -->
+                                <tr id="no-networks-row">
+                                    <td colspan="6" class="text-center">No networks found. Click "Scan Networks" to begin scanning.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evil Twin Page -->
+        <div class="page-content hidden" id="evil-twin-page">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Evil Twin Attack</h3>
+                </div>
+                <div class="card-body">
+                    <form id="evil-twin-form">
+                        <div class="form-group">
+                            <label for="et-ssid">SSID:</label>
+                            <input type="text" id="et-ssid" class="form-control" placeholder="Network name">
+                        </div>
+                        <div class="form-group">
+                            <label for="et-bssid">BSSID (optional):</label>
+                            <input type="text" id="et-bssid" class="form-control" placeholder="MAC address">
+                        </div>
+                        <div class="form-group">
+                            <label for="et-channel">Channel:</label>
+                            <select id="et-channel" class="form-control">
+                                <option value="1">1 (2.412 GHz)</option>
+                                <option value="2">2 (2.417 GHz)</option>
+                                <option value="3">3 (2.422 GHz)</option>
+                                <option value="4">4 (2.427 GHz)</option>
+                                <option value="5">5 (2.432 GHz)</option>
+                                <option value="6" selected>6 (2.437 GHz)</option>
+                                <option value="7">7 (2.442 GHz)</option>
+                                <option value="8">8 (2.447 GHz)</option>
+                                <option value="9">9 (2.452 GHz)</option>
+                                <option value="10">10 (2.457 GHz)</option>
+                                <option value="11">11 (2.462 GHz)</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="et-security" class="form-check-input">
+                            <label for="et-security" class="form-check-label">Enable WPA2 Security</label>
+                        </div>
+                        <div class="form-group" id="et-password-group">
+                            <label for="et-password">WPA2 Password:</label>
+                            <input type="text" id="et-password" class="form-control" placeholder="Minimum 8 characters">
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="et-deauth" class="form-check-input">
+                            <label for="et-deauth" class="form-check-label">Enable Deauthentication Attack</label>
+                        </div>
+                        <div class="form-group text-right">
+                            <button type="button" id="start-et-btn" class="btn btn-danger">Start Attack</button>
+                            <button type="button" id="stop-et-btn" class="btn btn-secondary" disabled>Stop Attack</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Captive Portal Page -->
+        <div class="page-content hidden" id="captive-portal-page">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Captive Portal Attack</h3>
+                </div>
+                <div class="card-body">
+                    <form id="captive-portal-form">
+                        <div class="form-group">
+                            <label for="cp-ssid">SSID:</label>
+                            <input type="text" id="cp-ssid" class="form-control" placeholder="Network name">
+                        </div>
+                        <div class="form-group">
+                            <label for="cp-template">Portal Template:</label>
+                            <select id="cp-template" class="form-control">
+                                <option value="default">Default Login Page</option>
+                                <option value="google">Google Account</option>
+                                <option value="facebook">Facebook Login</option>
+                                <option value="wifi">Generic WiFi Login</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cp-channel">Channel:</label>
+                            <select id="cp-channel" class="form-control">
+                                <option value="1">1 (2.412 GHz)</option>
+                                <option value="6" selected>6 (2.437 GHz)</option>
+                                <option value="11">11 (2.462 GHz)</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="cp-deauth" class="form-check-input">
+                            <label for="cp-deauth" class="form-check-label">Enable Deauthentication Attack</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="cp-logs">Captured Credentials:</label>
+                            <textarea id="cp-logs" class="form-control" rows="5" readonly></textarea>
+                        </div>
+                        <div class="form-group text-right">
+                            <button type="button" id="start-cp-btn" class="btn btn-danger">Start Attack</button>
+                            <button type="button" id="stop-cp-btn" class="btn btn-secondary" disabled>Stop Attack</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deauthentication Page -->
+        <div class="page-content hidden" id="deauth-page">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Deauthentication Attack</h3>
+                </div>
+                <div class="card-body">
+                    <form id="deauth-form">
+                        <div class="form-group">
+                            <label for="deauth-bssid">Target BSSID:</label>
+                            <input type="text" id="deauth-bssid" class="form-control" placeholder="MAC address of target AP">
+                        </div>
+                        <div class="form-group">
+                            <label for="deauth-client">Client MAC (optional):</label>
+                            <input type="text" id="deauth-client" class="form-control" placeholder="Leave empty for all clients">
+                        </div>
+                        <div class="form-group">
+                            <label for="deauth-count">Deauth Packets:</label>
+                            <input type="number" id="deauth-count" class="form-control" value="0" min="0" step="1">
+                            <small class="form-text text-muted">Use 0 for continuous deauthentication</small>
+                        </div>
+                        <div class="form-group text-right">
+                            <button type="button" id="start-deauth-btn" class="btn btn-danger">Start Attack</button>
+                            <button type="button" id="stop-deauth-btn" class="btn btn-secondary" disabled>Stop Attack</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Page -->
+        <div class="page-content hidden" id="logs-page">
+            <div class="card">
+                <div class="card-header">
+                    <h3>System Logs</h3>
+                    <button id="clear-logs-btn" class="btn btn-sm btn-secondary">Clear</button>
+                </div>
+                <div class="card-body">
+                    <textarea id="system-logs" class="form-control log-area" rows="20" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page-content hidden" id="settings-page">
+            <div class="card">
+                <div class="card-header">
+                    <h3>System Settings</h3>
+                </div>
+                <div class="card-body">
+                    <form id="settings-form">
+                        <div class="form-group">
+                            <label for="default-interface">Default Interface:</label>
+                            <select id="default-interface" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ap-ip">Access Point IP:</label>
+                            <input type="text" id="ap-ip" class="form-control" value="192.168.1.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="dhcp-range">DHCP Range:</label>
+                            <div class="input-group">
+                                <input type="text" id="dhcp-start" class="form-control" value="192.168.1.2">
+                                <div class="input-group-text">to</div>
+                                <input type="text" id="dhcp-end" class="form-control" value="192.168.1.100">
+                            </div>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="internet-sharing" class="form-check-input">
+                            <label for="internet-sharing" class="form-check-label">Enable Internet Sharing</label>
+                        </div>
+                        <div class="form-group text-right">
+                            <button type="button" id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal for network actions -->
+    <div class="modal" id="network-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Network Actions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="network-info">
+                        <h6>SSID: <span id="modal-ssid"></span></h6>
+                        <p>BSSID: <span id="modal-bssid"></span></p>
+                        <p>Channel: <span id="modal-channel"></span></p>
+                        <p>Security: <span id="modal-security"></span></p>
+                    </div>
+                    <div class="attack-buttons">
+                        <button class="btn btn-danger btn-block" id="modal-deauth-btn">Deauthenticate</button>
+                        <button class="btn btn-warning btn-block" id="modal-eviltwin-btn">Create Evil Twin</button>
+                        <button class="btn btn-info btn-block" id="modal-captive-btn">Launch Captive Portal</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification container -->
+    <div id="notification-container"></div>
+
+    <script src="/static/js/jquery-3.6.0.min.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/socket.io.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

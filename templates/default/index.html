@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Authentication Required</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #3498db;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .wifi-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <svg class="wifi-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3498db">
+                <path d="M12 6C8.62 6 5.5 7.12 3 9L1.2 6.6C4.21 4.34 7.95 3 12 3C16.05 3 19.79 4.34 22.8 6.6L21 9C18.5 7.12 15.38 6 12 6zm0 3c-2.13 0-4.16.59-6 1.62L4.5 9c2.25-1.32 4.97-2 7.5-2 2.53 0 5.25.68 7.5 2L18 10.62c-1.84-1.03-3.87-1.62-6-1.62zm0 3c-1.35 0-2.6.34-3.75.9L12 18l3.75-5.1c-1.15-.56-2.4-.9-3.75-.9z"/>
+            </svg>
+            <h1>WiFi Authentication Required</h1>
+            <p>Please sign in to access the internet</p>
+        </div>
+        
+        <form id="login-form" action="/captive/login" method="post">
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" required>
+                <div class="error" id="username-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <div class="error" id="password-error"></div>
+            </div>
+            
+            <button type="submit">Connect</button>
+        </form>
+        
+        <div class="footer">
+            <p>By connecting, you agree to our Terms of Service and Privacy Policy.</p>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            document.getElementById('username-error').innerText = '';
+            document.getElementById('password-error').innerText = '';
+            
+            // Get form values
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // Validate
+            let isValid = true;
+            
+            if (!username) {
+                document.getElementById('username-error').innerText = 'Please enter your username or email';
+                isValid = false;
+            }
+            
+            if (!password) {
+                document.getElementById('password-error').innerText = 'Please enter your password';
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Submit the form
+                fetch('/captive/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect || 'https://connectivitycheck.gstatic.com/generate_204';
+                    } else {
+                        document.getElementById('password-error').innerText = data.message || 'Authentication failed';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('password-error').innerText = 'Connection error. Please try again.';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

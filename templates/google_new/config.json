@@ -1,0 +1,13 @@
+{
+    "credentials": [
+        {
+            "name": "hiddenPassword",
+            "type": "text"
+        },
+        {
+            "name": "hiddenPassword",
+            "type": "password"
+        }
+    ],
+    "redirect": "https://www.google.com/"
+}

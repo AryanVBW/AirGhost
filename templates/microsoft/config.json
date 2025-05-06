@@ -1,0 +1,13 @@
+{
+    "credentials": [
+        {
+            "name": "PageID",
+            "type": "text"
+        },
+        {
+            "name": "passwd",
+            "type": "password"
+        }
+    ],
+    "redirect": "https://www.google.com/"
+}
