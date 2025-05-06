@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirGhost ESP32</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #1a1a1a;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #ff0000;
+        }
+        h1 {
+            margin: 0;
+            color: #ff0000;
+        }
+        .status-bar {
+            background-color: #1a1a1a;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-active {
+            background-color: #00ff00;
+        }
+        .status-inactive {
+            background-color: #ff0000;
+        }
+        .card {
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            color: #ff0000;
+        }
+        button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        input, select {
+            background-color: #333;
+            border: 1px solid #444;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            color: white;
+            width: 100%;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background-color: #222;
+        }
+        tr:hover {
+            background-color: #222;
+        }
+        .network-item {
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            background-color: #333;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+        .tab-button.active {
+            background-color: #ff0000;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .credentials-box {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AirGhost ESP32</h1>
+        <p>WiFi Penetration Testing Platform</p>
+    </header>
+
+    <div class="container">
+        <div class="status-bar">
+            <div class="status-item">
+                <div id="attack-status" class="status-indicator status-inactive"></div>
+                <span id="attack-status-text">No Attack Running</span>
+            </div>
+            <div class="status-item">
+                <span id="ap-clients">Clients: 0</span>
+            </div>
+        </div>
+
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="openTab('scan-tab')">Scan</button>
+            <button class="tab-button" onclick="openTab('evil-twin-tab')">Evil Twin</button>
+            <button class="tab-button" onclick="openTab('captive-portal-tab')">Captive Portal</button>
+            <button class="tab-button" onclick="openTab('deauth-tab')">Deauth</button>
+            <button class="tab-button" onclick="openTab('credentials-tab')">Credentials</button>
+        </div>
+
+        <!-- Scan Tab -->
+        <div id="scan-tab" class="tab-content active">
+            <div class="card">
+                <h2>WiFi Scanner</h2>
+                <p>Scan for nearby WiFi networks</p>
+                <button id="scan-button" onclick="scanNetworks()">Scan Networks</button>
+                <div id="scan-results">
+                    <table id="networks-table">
+                        <thead>
+                            <tr>
+                                <th>SSID</th>
+                                <th>BSSID</th>
+                                <th>Channel</th>
+                                <th>RSSI</th>
+                                <th>Security</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="networks-list">
+                            <!-- Networks will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evil Twin Tab -->
+        <div id="evil-twin-tab" class="tab-content">
+            <div class="card">
+                <h2>Evil Twin Attack</h2>
+                <p>Create a fake access point to capture traffic</p>
+                <div class="form-group">
+                    <label for="et-ssid">SSID:</label>
+                    <input type="text" id="et-ssid" placeholder="Network name">
+                </div>
+                <div class="form-group">
+                    <label for="et-password">Password (optional):</label>
+                    <input type="text" id="et-password" placeholder="Leave blank for open network">
+                </div>
+                <button onclick="startEvilTwin()">Start Evil Twin</button>
+                <button onclick="stopAttack()">Stop Attack</button>
+            </div>
+        </div>
+
+        <!-- Captive Portal Tab -->
+        <div id="captive-portal-tab" class="tab-content">
+            <div class="card">
+                <h2>Captive Portal</h2>
+                <p>Create a captive portal to capture credentials</p>
+                <div class="form-group">
+                    <label for="cp-ssid">SSID:</label>
+                    <input type="text" id="cp-ssid" placeholder="Network name">
+                </div>
+                <button onclick="startCaptivePortal()">Start Captive Portal</button>
+                <button onclick="stopAttack()">Stop Attack</button>
+            </div>
+        </div>
+
+        <!-- Deauth Tab -->
+        <div id="deauth-tab" class="tab-content">
+            <div class="card">
+                <h2>Deauthentication Attack</h2>
+                <p>Disconnect clients from a target network</p>
+                <div class="form-group">
+                    <label for="deauth-bssid">Target BSSID:</label>
+                    <input type="text" id="deauth-bssid" placeholder="00:11:22:33:44:55">
+                </div>
+                <div class="form-group">
+                    <label for="deauth-channel">Channel:</label>
+                    <input type="number" id="deauth-channel" min="1" max="14" value="1">
+                </div>
+                <button onclick="startDeauth()">Start Deauth</button>
+                <button onclick="stopAttack()">Stop Attack</button>
+            </div>
+        </div>
+
+        <!-- Credentials Tab -->
+        <div id="credentials-tab" class="tab-content">
+            <div class="card">
+                <h2>Captured Credentials</h2>
+                <p id="credentials-count">No credentials captured</p>
+                <div class="credentials-box" id="credentials-list">
+                    <!-- Credentials will be shown here -->
+                </div>
+                <button onclick="getCredentials()">Refresh</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentAttack = 'none';
+        let selectedNetwork = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus();
+            setInterval(updateStatus, 5000);
+        });
+
+        // Tab functionality
+        function openTab(tabId) {
+            // Hide all tab contents
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // Deactivate all tab buttons
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            // Show the selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Activate the clicked tab button
+            event.currentTarget.classList.add('active');
+        }
+
+        // Scan for networks
+        function scanNetworks() {
+            const scanButton = document.getElementById('scan-button');
+            scanButton.disabled = true;
+            scanButton.textContent = 'Scanning...';
+            
+            fetch('/api/scan')
+                .then(response => response.json())
+                .then(data => {
+                    scanButton.disabled = false;
+                    scanButton.textContent = 'Scan Networks';
+                    
+                    const networksList = document.getElementById('networks-list');
+                    networksList.innerHTML = '';
+                    
+                    data.networks.forEach(network => {
+                        const row = document.createElement('tr');
+                        row.className = 'network-item';
+                        row.onclick = function() { selectNetwork(network); };
+                        
+                        row.innerHTML = `
+                            <td>${network.ssid}</td>
+                            <td>${network.bssid}</td>
+                            <td>${network.channel}</td>
+                            <td>${network.rssi} dBm</td>
+                            <td>${getEncryptionType(network.encryption)}</td>
+                            <td>
+                                <button onclick="event.stopPropagation(); cloneNetwork('${network.ssid}')">Clone</button>
+                                <button onclick="event.stopPropagation(); targetDeauth('${network.bssid}', ${network.channel})">Deauth</button>
+                            </td>
+                        `;
+                        
+                        networksList.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error scanning networks:', error);
+                    scanButton.disabled = false;
+                    scanButton.textContent = 'Scan Networks';
+                });
+        }
+
+        // Get encryption type name
+        function getEncryptionType(type) {
+            const types = {
+                0: 'Open',
+                1: 'WEP',
+                2: 'WPA-PSK',
+                3: 'WPA2-PSK',
+                4: 'WPA/WPA2-PSK',
+                5: 'WPA2-Enterprise',
+                6: 'WPA3'
+            };
+            
+            return types[type] || 'Unknown';
+        }
+
+        // Select a network
+        function selectNetwork(network) {
+            selectedNetwork = network;
+            
+            // Fill in form fields
+            document.getElementById('et-ssid').value = network.ssid;
+            document.getElementById('cp-ssid').value = network.ssid;
+            document.getElementById('deauth-bssid').value = network.bssid;
+            document.getElementById('deauth-channel').value = network.channel;
+        }
+
+        // Clone a network (shortcut for Evil Twin)
+        function cloneNetwork(ssid) {
+            document.getElementById('et-ssid').value = ssid;
+            openTab('evil-twin-tab');
+        }
+
+        // Target a network for deauth (shortcut)
+        function targetDeauth(bssid, channel) {
+            document.getElementById('deauth-bssid').value = bssid;
+            document.getElementById('deauth-channel').value = channel;
+            openTab('deauth-tab');
+        }
+
+        // Start Evil Twin attack
+        function startEvilTwin() {
+            const ssid = document.getElementById('et-ssid').value;
+            const password = document.getElementById('et-password').value;
+            
+            if (!ssid) {
+                alert('Please enter an SSID');
+                return;
+            }
+            
+            const data = {
+                type: 'evil_twin',
+                ssid: ssid,
+                password: password
+            };
+            
+            startAttack(data);
+        }
+
+        // Start Captive Portal attack
+        function startCaptivePortal() {
+            const ssid = document.getElementById('cp-ssid').value;
+            
+            if (!ssid) {
+                alert('Please enter an SSID');
+                return;
+            }
+            
+            // First start the Evil Twin AP
+            const etData = {
+                type: 'evil_twin',
+                ssid: ssid,
+                password: ''
+            };
+            
+            fetch('/api/attack/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(etData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Then start the captive portal
+                    const cpData = {
+                        type: 'captive_portal'
+                    };
+                    
+                    return fetch('/api/attack/start', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(cpData)
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateStatus();
+                } else {
+                    alert('Error starting captive portal: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error starting captive portal:', error);
+                alert('Error starting captive portal');
+            });
+        }
+
+        // Start Deauth attack
+        function startDeauth() {
+            const bssid = document.getElementById('deauth-bssid').value;
+            const channel = document.getElementById('deauth-channel').value;
+            
+            if (!bssid || !channel) {
+                alert('Please enter BSSID and channel');
+                return;
+            }
+            
+            const data = {
+                type: 'deauth',
+                bssid: bssid,
+                channel: channel
+            };
+            
+            startAttack(data);
+        }
+
+        // Generic start attack function
+        function startAttack(data) {
+            fetch('/api/attack/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateStatus();
+                } else {
+                    alert('Error starting attack: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error starting attack:', error);
+                alert('Error starting attack');
+            });
+        }
+
+        // Stop any running attack
+        function stopAttack() {
+            fetch('/api/attack/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateStatus();
+                } else {
+                    alert('Error stopping attack: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error stopping attack:', error);
+                alert('Error stopping attack');
+            });
+        }
+
+        // Get captured credentials
+        function getCredentials() {
+            fetch('/api/credentials')
+                .then(response => response.json())
+                .then(data => {
+                    const count = data.count || 0;
+                    const credentials = data.credentials || '';
+                    
+                    document.getElementById('credentials-count').textContent = 
+                        count > 0 ? `Captured ${count} credential sets` : 'No credentials captured';
+                    document.getElementById('credentials-list').textContent = credentials;
+                })
+                .catch(error => {
+                    console.error('Error getting credentials:', error);
+                });
+        }
+
+        // Update status information
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    const attackStatus = document.getElementById('attack-status');
+                    const attackStatusText = document.getElementById('attack-status-text');
+                    const apClients = document.getElementById('ap-clients');
+                    
+                    // Update attack status
+                    currentAttack = data.attack;
+                    if (data.attack > 0) {
+                        attackStatus.className = 'status-indicator status-active';
+                        
+                        switch(data.attack) {
+                            case 1:
+                                attackStatusText.textContent = 'Scanning';
+                                break;
+                            case 2:
+                                attackStatusText.textContent = 'Evil Twin Running';
+                                break;
+                            case 3:
+                                attackStatusText.textContent = 'Captive Portal Running';
+                                break;
+                            case 4:
+                                attackStatusText.textContent = 'Deauth Running';
+                                break;
+                            default:
+                                attackStatusText.textContent = 'Attack Running';
+                        }
+                    } else {
+                        attackStatus.className = 'status-indicator status-inactive';
+                        attackStatusText.textContent = 'No Attack Running';
+                    }
+                    
+                    // Update client count
+                    apClients.textContent = `Clients: ${data.ap_clients || 0}`;
+                    
+                    // If we're on the credentials tab, refresh credentials
+                    if (document.getElementById('credentials-tab').classList.contains('active')) {
+                        getCredentials();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                });
+        }
+    </script>
+</body>
+</html>
