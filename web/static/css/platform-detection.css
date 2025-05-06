@@ -1,0 +1,481 @@
+/**
+ * AirGhost Platform Detection and Compatibility Styles
+ * Modern UI with animations for cross-platform support
+ */
+
+/* Platform Detection Section */
+.platform-section {
+    margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.platform-section h2 {
+    margin-bottom: 1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.platform-section h2 i {
+    margin-right: 0.5rem;
+    color: #ff0000;
+}
+
+/* OS Detection Card */
+.os-detection-card {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.os-detection-card.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.os-detection-card .os-icon {
+    font-size: 2.5rem;
+    margin-right: 1.5rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+}
+
+.os-detection-card .os-details {
+    flex: 1;
+}
+
+.os-detection-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.os-detection-card.compatibility-full .os-icon {
+    color: #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.os-detection-card.compatibility-partial .os-icon {
+    color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.os-detection-card.compatibility-limited .os-icon {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Compatibility Badge */
+.compatibility-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.compatibility-badge.compatibility-full {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.compatibility-badge.compatibility-partial {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.compatibility-badge.compatibility-limited {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+/* WiFi Interfaces Section */
+.interfaces-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.interface-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.interface-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #007bff;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.interface-card:hover::before {
+    opacity: 1;
+}
+
+.interface-card.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.interface-card.selected {
+    border: 2px solid #007bff;
+}
+
+.interface-card .interface-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+.interface-card .interface-details {
+    flex: 1;
+}
+
+.interface-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.interface-card p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.interface-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.feature-supported, .feature-unsupported {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.feature-supported {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.feature-unsupported {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.feature-supported i, .feature-unsupported i {
+    margin-right: 0.25rem;
+}
+
+.interface-actions {
+    margin-left: 1rem;
+}
+
+.no-interfaces-message {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #666;
+}
+
+.no-interfaces-message i {
+    font-size: 2rem;
+    color: #ffc107;
+    margin-bottom: 1rem;
+}
+
+/* Feature Compatibility Section */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.feature-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card.feature-supported::before {
+    background-color: #28a745;
+}
+
+.feature-card.feature-unsupported::before {
+    background-color: #dc3545;
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+.feature-card.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.feature-card .feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.feature-card.feature-supported .feature-icon {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.feature-card.feature-unsupported .feature-icon {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.feature-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.feature-card p {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.feature-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.feature-card.feature-supported .feature-status {
+    color: #28a745;
+}
+
+.feature-card.feature-unsupported .feature-status {
+    color: #dc3545;
+}
+
+.feature-status i {
+    margin-right: 0.5rem;
+}
+
+.feature-instructions {
+    font-size: 0.85rem;
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 0.75rem;
+    color: #495057;
+}
+
+.feature-instructions i {
+    margin-right: 0.25rem;
+    color: #17a2b8;
+}
+
+/* Missing Dependencies Alert */
+.missing-dependencies-alert {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 4px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.missing-dependencies-alert.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.missing-dependencies-alert h4 {
+    margin: 0 0 0.75rem 0;
+    color: #856404;
+    display: flex;
+    align-items: center;
+}
+
+.missing-dependencies-alert h4 i {
+    margin-right: 0.5rem;
+}
+
+.missing-dependencies-alert p {
+    margin: 0 0 0.75rem 0;
+    color: #856404;
+}
+
+.missing-dependencies-alert ul {
+    margin: 0 0 1rem 1.5rem;
+    padding: 0;
+    color: #856404;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    max-width: 350px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.notification-icon {
+    margin-right: 1rem;
+    font-size: 1.25rem;
+}
+
+.notification-content {
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #666;
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+.notification-info .notification-icon {
+    color: #17a2b8;
+}
+
+.notification-success .notification-icon {
+    color: #28a745;
+}
+
+.notification-warning .notification-icon {
+    color: #ffc107;
+}
+
+.notification-error .notification-icon {
+    color: #dc3545;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .interfaces-list, .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .os-detection-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .os-detection-card .os-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .interface-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .interface-card .interface-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .interface-actions {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+}

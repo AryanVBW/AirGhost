@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirGhost - Platform Detection</title>
+    <link rel="stylesheet" href="static/css/platform-detection.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AirGhost</h1>
+            <p>Cross-Platform WiFi Security Tool</p>
+        </header>
+
+        <section class="platform-detection">
+            <h2>Platform Detection</h2>
+            <div id="os-detection" class="detection-card">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Detecting operating system...</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="wifi-interfaces">
+            <h2>WiFi Interfaces</h2>
+            <div id="wifi-interfaces" class="interfaces-card">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Loading WiFi interfaces...</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-compatibility">
+            <h2>Feature Compatibility</h2>
+            <div id="feature-compatibility" class="compatibility-card">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Loading compatibility information...</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="missing-dependencies">
+            <h2>Dependencies</h2>
+            <div id="missing-dependencies" class="dependencies-card">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Checking dependencies...</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="static/js/platform-detection.js"></script>
+</body>
+</html>
