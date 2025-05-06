@@ -25,6 +25,8 @@ AirGhost is a comprehensive WiFi penetration testing platform designed specifica
 
 ## Installation
 
+### Production Installation
+
 Run the automated setup script to install AirGhost:
 
 ```bash
@@ -39,6 +41,25 @@ The setup script will:
 2. Configure the necessary services
 3. Set up the web interface
 4. Create system services for auto-start
+
+### Development Setup
+
+For developers who want to modify or contribute to AirGhost, use the development setup script:
+
+```bash
+git clone https://github.com/AryanVBW/AirGhost.git
+cd AirGhost
+chmod +x dev_setup.sh
+sudo ./dev_setup.sh
+```
+
+This will create a development environment with:
+- Python virtual environment
+- All necessary dependencies
+- Development configuration files
+- Git hooks for code quality
+
+For more information, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Requirements
 
@@ -133,6 +154,8 @@ AirGhost is provided for educational and ethical penetration testing purposes on
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+If you're interested in contributing to AirGhost, please check out our [Development Guide](DEVELOPMENT.md) for information on setting up a development environment and our contribution workflow.
 
 ## Acknowledgments
 
